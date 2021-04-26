@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 #  macBuild.sh
-#  version 1.0.0
+#  version 1.0.1
 #
 #  Created by Sergey Balalaev on 23.04.21.
 #  Copyright (c) 2021 ByteriX. All rights reserved.
@@ -129,15 +129,15 @@ checkExit(){
 }
 
 prepareBuild(){
-  rm -rf ${ROOT_DIR}
-  mkdir -pv ${ROOT_DIR}
-  rm -rf ${BUILD_DIR}
-  mkdir -pv $BUILD_DIR
+  rm -rf "$ROOT_DIR"
+  mkdir -pv "$ROOT_DIR"
+  rm -rf "$BUILD_DIR"
+  mkdir -pv "$BUILD_DIR"
 }
      
 buildRelease(){
-  cd ${BUILD_DIR}
-  cmake .. -DCMAKE_INSTALL_PREFIX=${ROOT_DIR}\
+  cd "${BUILD_DIR}"
+  cmake .. -DCMAKE_INSTALL_PREFIX="${ROOT_DIR}"\
     -DCMAKE_BUILD_TYPE=Release\
     ${CMAKE_PARAMS}\
     -DNO_SHIBBOLETH=1
@@ -147,7 +147,7 @@ buildRelease(){
 }
 
 signBuild(){
-  cd ${ROOT_DIR}
+  cd "${ROOT_DIR}"
 
   rm -rf ./sign
   mkdir -pv ./sign
@@ -167,7 +167,7 @@ signBuild(){
 
   # Create installer
 
-  cd ${ROOT_DIR}
+  cd "${ROOT_DIR}"
 
   rm -f -d -r ./dmg
   mkdir -p ./dmg
@@ -176,12 +176,12 @@ signBuild(){
 
 # depricated easy installer
 createInstaller(){
-    hdiutil create -volname ${NAME} -srcfolder ${ROOT_DIR}/sign -ov -format UDBZ ${DMG}
+    hdiutil create -volname ${NAME} -srcfolder "${ROOT_DIR}/sign" -ov -format UDBZ ${DMG}
 }
 
 createInstallerWithBeatyInterface(){
 
-    hdiutil create -volname ${NAME} -srcfolder ${ROOT_DIR}/sign -fs HFS+ \
+    hdiutil create -volname ${NAME} -srcfolder "${ROOT_DIR}/sign" -fs HFS+ \
         -fsargs "-c c=64,a=16,e=16" -format UDRW ${DMG}
     mv ${DMG} ${TEMP_DMG}
     title="${NAME}"
