@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 #
 #  macBuild.sh
-#  version 1.0.1
+#  version 1.0.2
 #
 #  Created by Sergey Balalaev on 23.04.21.
 #  Copyright (c) 2021 ByteriX. All rights reserved.
 #
 
 SRC_DIR=${PWD}
-ROOT_DIR=${SRC_DIR}/build
 BUILD_DIR=${SRC_DIR}/.build
+RESULT_DIR=${SRC_DIR}/build
 
 NAME=""
 BUNDLE_NAME=""
@@ -129,15 +129,15 @@ checkExit(){
 }
 
 prepareBuild(){
-  rm -rf "$ROOT_DIR"
-  mkdir -pv "$ROOT_DIR"
+  rm -rf "$RESULT_DIR"
+  mkdir -pv "$RESULT_DIR"
   rm -rf "$BUILD_DIR"
   mkdir -pv "$BUILD_DIR"
 }
      
 buildRelease(){
   cd "${BUILD_DIR}"
-  cmake .. -DCMAKE_INSTALL_PREFIX="${ROOT_DIR}"\
+  cmake .. -DCMAKE_INSTALL_PREFIX="${RESULT_DIR}"\
     -DCMAKE_BUILD_TYPE=Release\
     ${CMAKE_PARAMS}\
     -DNO_SHIBBOLETH=1
@@ -147,7 +147,7 @@ buildRelease(){
 }
 
 signBuild(){
-  cd "${ROOT_DIR}"
+  cd "${RESULT_DIR}"
 
   rm -rf ./sign
   mkdir -pv ./sign
@@ -161,13 +161,13 @@ signBuild(){
 
   # Prepare installer
 
-  ln -s "/Applications" "${ROOT_DIR}/sign/Applications"
-  mkdir "${ROOT_DIR}/sign/.background"
-  cp "$SRC_DIR/$backgroundPictureName" "${ROOT_DIR}/sign/.background"
+  ln -s "/Applications" "${RESULT_DIR}/sign/Applications"
+  mkdir "${RESULT_DIR}/sign/.background"
+  cp "$SRC_DIR/$backgroundPictureName" "${RESULT_DIR}/sign/.background"
 
   # Create installer
 
-  cd "${ROOT_DIR}"
+  cd "${RESULT_DIR}"
 
   rm -f -d -r ./dmg
   mkdir -p ./dmg
@@ -176,12 +176,12 @@ signBuild(){
 
 # depricated easy installer
 createInstaller(){
-    hdiutil create -volname ${NAME} -srcfolder "${ROOT_DIR}/sign" -ov -format UDBZ ${DMG}
+    hdiutil create -volname ${NAME} -srcfolder "${RESULT_DIR}/sign" -ov -format UDBZ ${DMG}
 }
 
 createInstallerWithBeatyInterface(){
 
-    hdiutil create -volname ${NAME} -srcfolder "${ROOT_DIR}/sign" -fs HFS+ \
+    hdiutil create -volname ${NAME} -srcfolder "${RESULT_DIR}/sign" -fs HFS+ \
         -fsargs "-c c=64,a=16,e=16" -format UDRW ${DMG}
     mv ${DMG} ${TEMP_DMG}
     title="${NAME}"
