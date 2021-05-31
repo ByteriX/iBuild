@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 #  macBuild.sh
-#  version 1.0.2
+#  version 1.0.3
 #
 #  Created by Sergey Balalaev on 23.04.21.
 #  Copyright (c) 2021 ByteriX. All rights reserved.
@@ -11,6 +11,7 @@ SRC_DIR=${PWD}
 BUILD_DIR=${SRC_DIR}/.build
 RESULT_DIR=${SRC_DIR}/build
 
+OUTPUT_NAME=""
 NAME=""
 BUNDLE_NAME=""
 
@@ -22,6 +23,7 @@ PASSWORD=""
 
 IS_BUILD=false
 IS_DEPLOY=false
+IS_ADDING_VERSION=false
 
 CMAKE_PARAMS=""
 
@@ -40,6 +42,11 @@ do
 key="$1"
 
 case $key in
+    -on|--outputName)
+    OUTPUT_NAME="$2"
+    shift # past argument
+    shift # past value
+    ;;
     -p|--project)
     NAME="$2"
     shift # past argument
@@ -89,9 +96,14 @@ case $key in
     shift # past argument
     shift # past value
     ;;
+    -av|--addVersion)
+    IS_ADDING_VERSION=true
+    shift # past argument
+    ;;
     -h|--help)
     echo ""
     echo "Help for call build script with parameters:"
+    echo "  -on, --outputName    : name of app file. Not requered param. If empty then use project name:"
     echo "  -p, --project        : name of project. Requered param."
     echo "  -bu, --bundle        : name of bundle for Application. Requered param."
     echo "  -u, --user           : 2 params: login password. It specialized user, who created in Connection of developer programm. If defined then App will be uploaded to Store."
@@ -101,6 +113,7 @@ case $key in
     echo "  -d, --deploy         : If selected then will create signed DMG installer"
     echo "  -a, --all            : If selected then will make all features."
     echo "  -c, --cmake          : Params of cmake build"
+    echo "  -av, --addVersion    : Add to the name of installer current version"
     echo ""
     echo "Emample: sh build.sh --project ProjectName --bundle ProjectName.Orgaization.com --user UserName Password123 --team 123456 --developer 'Developer ID Application: Ivan Pupkin (123456)' --all --cmake '-DCMAKE_PREFIX_PATH=/usr/local/Cellar/qt'\n\n"
     exit 0
@@ -115,7 +128,10 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 # Initalize
 
 APP=${NAME}.app
-DMG=${NAME}.dmg
+DMG=""
+if [ $OUTPUT_NAME == "" ]; then
+  OUTPUT_NAME=$NAME
+fi
 TEMP_DMG="temp_${NAME}.dmg"
 backgroundPictureName=back.png
 
@@ -151,27 +167,46 @@ signBuild(){
 
   rm -rf ./sign
   mkdir -pv ./sign
-  cp -R ./${APP} ./sign
+  NEW_APP=${OUTPUT_NAME}.app
+  echo "Creating ${NEW_APP}"
+  mv ./${APP} "./${NEW_APP}"
+  APP=${NEW_APP}
+  cp -R "./${APP}" ./sign
 
   cd ./sign
   #sign
-  codesign --deep --force --verify --verbose --options runtime --timestamp --sign "${DEV_ID}" ${APP}
+  codesign --deep --force --verify --verbose --options runtime --timestamp --sign "${DEV_ID}" "${APP}"
   #verify
-  codesign --verify --verbose=4 ${APP}
+  codesign --verify --verbose=4 "${APP}"
 
-  # Prepare installer
+  # Prepare link
 
   ln -s "/Applications" "${RESULT_DIR}/sign/Applications"
   mkdir "${RESULT_DIR}/sign/.background"
   cp "$SRC_DIR/$backgroundPictureName" "${RESULT_DIR}/sign/.background"
 
-  # Create installer
+}
+
+prepareInstaller(){
 
   cd "${RESULT_DIR}"
+
+  VERSION_NAME=$(plutil -extract CFBundleShortVersionString xml1 -o - "${APP}/Contents/Info.plist" | sed -n "s/.*<string>\(.*\)<\/string>.*/\1/p")
+  echo "Version of ${APP} is ${VERSION_NAME}"
 
   rm -f -d -r ./dmg
   mkdir -p ./dmg
   cd ./dmg
+
+  
+  if $IS_ADDING_VERSION ; then
+    DMG=${NAME}${VERSION_NAME}.dmg
+  else
+    DMG=${NAME}.dmg
+  fi
+
+  echo "installer file: $DMG prepared"
+
 }
 
 # depricated easy installer
@@ -250,7 +285,7 @@ signInstallerAndCheckWithApple(){
   hdiutil attach ${DMG}
   pushd /Volumes/${NAME}
 
-  spctl -a -v /Volumes/${NAME}/${APP}
+  spctl -a -v "/Volumes/${NAME}/${APP}"
 
   popd
   diskutil eject "/Volumes/${NAME}"
@@ -276,6 +311,10 @@ fi
 if $IS_DEPLOY ; then
     echo "Starting sign Application:"
     signBuild
+    checkExit
+
+    echo "Prepare installer:"
+    prepareInstaller
     checkExit
 
     echo "Creating installer:"
