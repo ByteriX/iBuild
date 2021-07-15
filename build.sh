@@ -1,7 +1,7 @@
 
 #
 #  build.sh
-#  version 2.1.0
+#  version 2.1.1
 #
 #  Created by Sergey Balalaev on 20.08.15.
 #  Copyright (c) 2015-2021 ByteriX. All rights reserved.
@@ -300,7 +300,7 @@ createExportPlist(){
     <key>signingStyle</key>
     <string>automatic</string>
     <key>signingCertificate</key>
-    <string>iOS Distribution</string>
+    <string>Apple Distribution</string>
     <key>method</key>
     <string>${SIGNING_METHOD}</string>
     <key>teamID</key>
