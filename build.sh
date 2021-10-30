@@ -1,7 +1,7 @@
 
 #
 #  build.sh
-#  version 2.1.1
+#  version 2.1.2
 #
 #  Created by Sergey Balalaev on 20.08.15.
 #  Copyright (c) 2015-2021 ByteriX. All rights reserved.
@@ -156,11 +156,10 @@ fi
 
 if [ "$SETUP_VERSION" == "auto" ]; then
     echo "Pulling all tags from remote"
-    #git pull --tags
-    git fetch --tags
+    git fetch --tags --force
         
     # get templated version number as max from git tags:
-    VERSION_TAG=$(git describe --tags $(git rev-list --tags=${BUILD_VERSION_TAG_GROUP_NAME}/* --max-count=1000) | awk "/$BUILD_VERSION_TAG_GROUP_NAME\/[0-9.]+$"'/{print $0}' | sed -n "s/$BUILD_VERSION_TAG_GROUP_NAME\/\(\S*\)/\1/p" | awk '{if(min==""){min=max=$1}; if($1>max) {max=$1}; if($1<min) {min=$1}; total+=$1; count+=1} END {print max}')
+    VERSION_TAG=$(git tag --list "${BUILD_VERSION_TAG_GROUP_NAME}/*" | awk "/$BUILD_VERSION_TAG_GROUP_NAME\/[0-9.]+$"'/{print $0}' | sed -n "s/$BUILD_VERSION_TAG_GROUP_NAME\/\(\S*\)/\1/p" | awk '{if(min==""){min=$1}; if(max==""){max=$1}; if($1>max) {max=$1}; if($1<min) {min=$1}; total+=$1; count+=1} END {print max}')
     echo "Last tag version is $VERSION_TAG\n"
 
     if [[ $VERSION_TAG =~ ^[0-9]+$ ]]
