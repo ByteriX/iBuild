@@ -19,6 +19,7 @@ HAS_IPA_BUILD=true
 OUTPUT_NAME=""
 TEAM_ID=""
 TEST_DESTINATION="platform=iOS Simulator,name=iPhone 13"
+SRC_DIR="${PWD}"
 
 EXPORT_PLIST=""
 PROVISIONING_PROFILE="" #reserver
@@ -141,7 +142,7 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 
 # Initalize
 
-APP_BUILD_PATH="${PWD}/.build"
+APP_BUILD_PATH="${SRC_DIR}/.build"
 BUILD_DIR="${APP_BUILD_PATH}/xcode"
 APP_CURRENT_BUILD_PATH="${APP_BUILD_PATH}/Current"
 APP_CONFIG_PATH="./build.config"
