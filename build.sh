@@ -134,6 +134,7 @@ case $key in
     echo "  -c, --configuration  : name of configuration. Default is Release."
     echo "  -s, --scheme         : name of target scheme. Default is the same as project name."
     echo "  -u, --user           : 2 params: login password. It specialized user, who created in Connection of developer programm. If defined then App will be uploaded to Store."
+    echo "  -key, --key          : 3 params: apiKey, apiIssuer and path to key with p8. It specialized user, who created in Connection of developer programm. If defined then App will be uploaded to Store."
     echo "  -v, --version        : number of bundle version of the App. If has 'auto' value then will be detected from tags. Default auto."
     echo "  -o, --output         : name of out ipa file. Default is SchemeName.ipa."
     echo "  -t, --team           : team identifier of your developer program for a upload IPA to Connection AppSore. If defined -ep doesn't meater and export plist will created automaticle."
