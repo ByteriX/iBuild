@@ -26,6 +26,9 @@ PROVISIONING_PROFILE="" #reserver
 
 USERNAME=""
 PASSWORD=""
+API_KEY=""
+API_ISSUER=""
+AUTH_KEY=""
 
 # get parameters of script
 
@@ -66,6 +69,19 @@ case $key in
     shift # past argument
     shift # past value 1
     shift # past value 2
+    ;;
+    -key|--key)
+    API_KEY="$2"
+    API_ISSUER="$3"
+    AUTH_KEY="$4"
+    if [ "$AUTH_KEY" == "" ]; then
+        echo "ERROR: $1 need 3 parameters"
+        exit
+    fi
+    shift # past argument
+    shift # past value 1
+    shift # past value 2
+    shift # past value 3
     ;;
     -v|--version)
     SETUP_VERSION="$2"
@@ -374,8 +390,18 @@ podSetup(){
 	fi
 }
 
-uploadToStore(){
+uploadToStoreUser(){
     xcrun altool --upload-app -f "${IPA_PATH}" -u $USERNAME -p $PASSWORD
+    checkExit
+    echo "Application uploading finished with success"
+}
+
+uploadToStoreKey(){
+    KEYS_DIR="${PWD}/private_keys"
+    rm -rf "${KEYS_DIR}"
+    mkdir -p "${KEYS_DIR}"
+    cp -f "${AUTH_KEY}" "${KEYS_DIR}/AuthKey_${API_KEY}.p8"
+    xcrun altool --upload-app -f "${IPA_PATH}" -t "iOS" --apiKey "${API_KEY}" --apiIssuer "${API_ISSUER}"
     checkExit
     echo "Application uploading finished with success"
 }
@@ -406,10 +432,15 @@ fi
 if [ "$USERNAME" != "" ] ; then
     echo ""
     echo "Starting upload to store:"
-    echo "USERNAME          = ${USERNAME}"
-    echo "PASSWORD          = ${PASSWORD}"
+    echo "USER          = ${USERNAME}"
 
-    uploadToStore
+    uploadToStoreUser
+elif [ "$API_KEY" != "" ] ; then
+    echo ""
+    echo "Starting upload to store:"
+    echo "API KEY          = ${API_KEY}"
+
+    uploadToStoreKey
 fi
 
 if $IS_TAG_VERSION ; then
