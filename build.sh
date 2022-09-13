@@ -330,8 +330,8 @@ tests(){
     $ACTION \
     $XCODE_PROJECT \
     -scheme ${SCHEME_NAME} \
-    -destination "${TEST_DESTINATION}"
-    -resultBundlePath "${RESULT_PATH}/Run-${PROJECT_NAME}"
+    -destination "${TEST_DESTINATION}" \
+    -resultBundlePath "${RESULT_PATH}/${PROJECT_NAME}"
 
     checkExit
     echo "Tests finished for ${PROJECT_NAME}\n\n"
