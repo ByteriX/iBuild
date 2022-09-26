@@ -1,7 +1,7 @@
 
 #
 #  build.sh
-#  version 2.4
+#  version 2.4.1
 #
 #  Created by Sergey Balalaev on 20.08.15.
 #  Copyright (c) 2015-2022 ByteriX. All rights reserved.
@@ -16,6 +16,7 @@ IS_TAG_VERSION=false
 HAS_BITCODE=false
 HAS_TESTING=false
 HAS_IPA_BUILD=true
+IS_APP_STORE=false
 OUTPUT_NAME=""
 TEAM_ID=""
 TEST_DESTINATION="platform=iOS Simulator,name=iPhone 13,OS=15.0"
@@ -69,6 +70,7 @@ case $key in
         echo "ERROR: $1 need 2 parameters"
         exit
     fi
+    IS_APP_STORE=true
     shift # past argument
     shift # past value 1
     shift # past value 2
@@ -81,6 +83,7 @@ case $key in
         echo "ERROR: $1 need 3 parameters"
         exit
     fi
+    IS_APP_STORE=true
     shift # past argument
     shift # past value 1
     shift # past value 2
@@ -370,10 +373,10 @@ tagCommit(){
 createExportPlist(){
     local EXPORT_PLIST=$1
 
-    if [ "$USERNAME" == "" ]; then
-        SIGNING_METHOD=ad-hoc
-    else
+    if $IS_APP_STORE ; then
         SIGNING_METHOD=app-store
+    else
+        SIGNING_METHOD=ad-hoc
     fi
 
     cat > $EXPORT_PLIST << EOL
