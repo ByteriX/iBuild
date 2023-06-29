@@ -1,10 +1,10 @@
 
 #
 #  build.sh
-#  version 2.4.1
+#  version 2.4.2
 #
 #  Created by Sergey Balalaev on 20.08.15.
-#  Copyright (c) 2015-2022 ByteriX. All rights reserved.
+#  Copyright (c) 2015-2023 ByteriX. All rights reserved.
 #
 
 PROJECT_NAME=""
@@ -205,7 +205,7 @@ if [ "$EXPORT_PLIST" == "" ]; then
     fi
 fi
 
-if [ -d "${PROJECT_NAME}.xcworkspace" ]; then
+if [ -f "${PROJECT_NAME}.xcworkspace/contents.xcworkspacedata" ]; then
     XCODE_PROJECT="-workspace ${PROJECT_NAME}.xcworkspace"
     echo "Using for workspace: ${XCODE_PROJECT}\n"
 else
